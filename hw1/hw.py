@@ -17,10 +17,9 @@ iris_data.columns = [
 ]
 
 print(iris_data.columns)
-
 print(iris_data.head())
 
-
+iris_data2 = iris_data[["sepal length", "sepal width", "petal length", "petal width"]]
 # Statistical Analysis
 
 print(iris_data.describe())
@@ -28,7 +27,9 @@ print(iris_data.describe())
 print("Mean- ", np.mean(iris_data, axis=0))
 print("Min", np.min(iris_data, axis=0))
 print("Max", np.max(iris_data, axis=0))
-
+print("quantile 25", np.quantile(iris_data2, q=0.25, axis=0))
+print("quantile 50", np.quantile(iris_data2, q=0.50, axis=0))
+print("quantile 75", np.quantile(iris_data2, q=0.75, axis=0))
 
 # Plots
 
@@ -157,6 +158,7 @@ print(pipe.score(X, y))
 
 X = iris_data[["sepal length", "sepal width", "petal length", "petal width"]]
 y = iris_data["class"]
+
 
 pipe = Pipeline(
     [
