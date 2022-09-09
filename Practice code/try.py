@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 
 # from sklearn.datasets import make_classification
 
-iris_data = pd.read_csv("iris.data")
+iris_data = pd.read_csv("../hw1/iris.data")
 iris_data.columns = [
     "sepal length",
     "sepal width",
