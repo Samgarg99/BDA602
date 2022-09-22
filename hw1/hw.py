@@ -54,13 +54,13 @@ fig3 = pt.scatter(
     trendline="ols",
     template="simple_white",
 )
-# fig3.show()
-fig3.write_html(file="fig2.html", include_plotlyjs="cdn")
+fig3.show()
+# fig3.write_html(file="fig2.html", include_plotlyjs="cdn")
 
 fig4 = pt.box(iris_data, x="sepal width", y="sepal length", color="class")
 # fig4.update_traces(quartilemethod="exclusive") # or "inclusive", or "linear" by default
-# fig4.show()
-fig4.write_html(file="fig2.html", include_plotlyjs="cdn")
+fig4.show()
+# fig4.write_html(file="fig2.html", include_plotlyjs="cdn")
 
 # Line plots
 
@@ -68,19 +68,19 @@ fig5 = pt.line(
     iris_data, y="petal length", color="class", title="petal length vs class"
 )
 fig5.show()
-fig5.write_html(file="fig2.html", include_plotlyjs="cdn")
+# fig5.write_html(file="fig2.html", include_plotlyjs="cdn")
 
 fig5_1 = pt.line(
     iris_data, y="petal width", color="class", title="petal width vs class"
 )
 fig5_1.show()
-fig5_1.write_html(file="fig2.html", include_plotlyjs="cdn")
+# fig5_1.write_html(file="fig2.html", include_plotlyjs="cdn")
 
 fig5_2 = pt.line(
     iris_data, y="sepal length", color="class", title="sepal length vs class"
 )
 fig5_2.show()
-fig5_2.write_html(file="fig2.html", include_plotlyjs="cdn")
+# fig5_2.write_html(file="fig2.html", include_plotlyjs="cdn")
 
 
 fig6 = pt.parallel_coordinates(
@@ -95,8 +95,8 @@ fig6 = pt.parallel_coordinates(
     color_continuous_scale=pt.colors.diverging.Tealrose,
     color_continuous_midpoint=2,
 )
-# fig6.show()
-fig6.write_html(file="fig2.html", include_plotlyjs="cdn")
+fig6.show()
+# fig6.write_html(file="fig2.html", include_plotlyjs="cdn")
 
 # Heatmaps
 
@@ -107,8 +107,8 @@ fig7 = pt.density_heatmap(
     marginal_x="rug",
     marginal_y="histogram",
 )
-# fig7.show()
-fig7.write_html(file="fig2.html", include_plotlyjs="cdn")
+fig7.show()
+# fig7.write_html(file="fig2.html", include_plotlyjs="cdn")
 
 fig8 = pt.density_heatmap(
     iris_data,
@@ -117,8 +117,8 @@ fig8 = pt.density_heatmap(
     marginal_x="rug",
     marginal_y="histogram",
 )
-# fig8.show()
-fig8.write_html(file="fig2.html", include_plotlyjs="cdn")
+fig8.show()
+# fig8.write_html(file="fig2.html", include_plotlyjs="cdn")
 
 fig9 = pt.density_heatmap(
     iris_data,
@@ -127,14 +127,15 @@ fig9 = pt.density_heatmap(
     marginal_x="rug",
     marginal_y="histogram",
 )
-# fig9.show()
-fig9.write_html(file="fig2.html", include_plotlyjs="cdn")
+fig9.show()
+# fig9.write_html(file="fig2.html", include_plotlyjs="cdn")
+
 
 fig10 = pt.density_heatmap(
     iris_data, x="class", y="petal length", marginal_x="rug", marginal_y="histogram"
 )
-# fig10.show()
-fig10.write_html(file="fig2.html", include_plotlyjs="cdn")
+fig10.show()
+# fig10.write_html(file="fig2.html", include_plotlyjs="cdn")
 
 # Building Models
 
