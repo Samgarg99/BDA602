@@ -1,5 +1,7 @@
 # ---------------------------- Assignment ------------------------------------------
 
+
+
 # Batting average historic
 
 SELECT batter, ROUND((SUM(Hit)/SUM(atBat)),3) as battingaverage
