@@ -1,7 +1,5 @@
 # ---------------------------- Assignment ------------------------------------------
 
-
-
 # Batting average historic
 
 SELECT batter, ROUND((SUM(Hit)/SUM(atBat)),3) as battingaverage
@@ -198,7 +196,6 @@ ORDER BY player, DateOfGame;
 
 
 
-
 # Method 2 to calculate the rolling average over last 100 days prior to this game
 
 SELECT  player, dog as DateOfGame, ROUND((sum(bathit)/SUM(bat)),3) as RollingAverage, SUM(bat), sum(bathit)
@@ -210,3 +207,5 @@ ON ps1.player = ps2.player AND DATEDIFF(ps1.DateOfGame, ps2.DateOfGame) BETWEEN 
 ORDER BY ps1.DateOfGame) as p
 GROUP by player, dog
 ORDER BY player, dog;
+
+# -------------------------------------------------------------------------------------------
