@@ -109,13 +109,14 @@ CREATE TABLE IF NOT EXISTS PlayerStat(
 player int,
 atbat int,
 hit int, 
-DateOfGame DATETIME
+DateOfGame DATETIME,
+game_id int
 );
 
 
-INSERT INTO PlayerStat(player, atbat, hit, DateOfGame)
+INSERT INTO PlayerStat(player, atbat, hit, DateOfGame, game_id)
 SELECT * FROM 
-(SELECT bc.batter as player, bc.atBat as bat, bc.Hit as hit, g.local_date as DateOfGame
+(SELECT bc.batter as player, bc.atBat as bat, bc.Hit as hit, g.local_date as DateOfGame, g.game_id
 FROM batter_counts bc 
 JOIN game g 
 ON bc.game_id = g.game_id) as p
@@ -135,7 +136,8 @@ atbat int,
 hit int, 
 DateOfGame DATETIME,
 RollingDate DATETIME,
-DaysDifference int
+DaysDifference int,
+game_id int
 );
 
 
@@ -144,7 +146,8 @@ DaysDifference int
 INSERT INTO RollingStats 
 SELECT *
 FROM
-	(SELECT ps1.player, ps2.atbat as bat, ps2.hit as bathit, ps1.DateOfGame as dog, ps2.DateOfGame AS RollingDates, DATEDIFF(ps1.DateOfGame, ps2.DateOfGame)
+	(SELECT ps1.player, ps2.atbat as bat, ps2.hit as bathit, ps1.DateOfGame as dog, ps2.DateOfGame AS RollingDates, DATEDIFF(ps1.DateOfGame, ps2.DateOfGame),
+	ps1.game_id
 	FROM PlayerStat ps1
 	LEFT JOIN PlayerStat ps2
 	ON ps1.player = ps2.player AND DATEDIFF(ps1.DateOfGame, ps2.DateOfGame) BETWEEN 1 AND 100) as stats
@@ -178,6 +181,7 @@ ORDER BY player, DateOfGame;
 CREATE TABLE IF NOT EXISTS RollingAverage(
 player int,
 DateOfGame DATETIME,
+game_id int,
 RollingAverage DECIMAL(5,3),
 SumOfHits int,
 SumOfAtBat int
@@ -187,9 +191,9 @@ SumOfAtBat int
 
 INSERT INTO RollingAverage 
 SELECT * FROM 
-	(SELECT player, DateOfGame, ROUND((SUM(hit)/SUM(atbat)),3) as RollingAverage, SUM(hit) as SumOfHits, SUM(atbat) as SumOfAtBat
+	(SELECT player, DateOfGame, game_id, ROUND((SUM(hit)/SUM(atbat)),3) as RollingAverage, SUM(hit) as SumOfHits, SUM(atbat) as SumOfAtBat
 	FROM RollingStats rs 
-	GROUP BY player, DateOfGame
+	GROUP BY player, DateOfGame, game_id
 	HAVING SUM(atbat)>0) as stats
 ORDER BY player, DateOfGame;
 
