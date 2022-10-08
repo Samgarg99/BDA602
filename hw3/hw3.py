@@ -1,3 +1,5 @@
+# This code if without the transformer
+
 import sys
 
 # from pyspark import StorageLevel
@@ -31,7 +33,7 @@ def main():
            """
 
     database = "baseball"
-    user = "user"  # use your username
+    user = "root"  # use your username
     server = "localhost"
     port = 3306
     jdbc_url = f"jdbc:mysql://{server}:{port}/{database}?permitMysqlScheme"
@@ -43,7 +45,7 @@ def main():
         .option("url", jdbc_url)
         .option("query", sql1)
         .option("user", user)
-        .option("password", "pwd")  # add your password in place of pwd
+        .option("password", "Sameer!12")  # add your password in place of pwd
         .option("driver", jdbc_driver)
         .load()
     )
@@ -65,7 +67,7 @@ def main():
         .withColumn("Rolling_SumOfatBat", F.sum("atBat").over(w))
     )
     print("Rolling Average \n")
-    print(df_test.show(200))
+    print(df_test.show(20))
 
 
 if __name__ == "__main__":
