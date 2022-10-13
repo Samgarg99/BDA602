@@ -1,6 +1,13 @@
+mariadb
+mysql
+mysql-connector
+mysqlclient
 numpy
 pandas
 plotly
+pyspark
+pyspark-stubs
 sklearn
+sqlalchemy
 statsmodels
 requests
