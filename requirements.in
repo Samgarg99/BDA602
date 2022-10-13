@@ -1,4 +1,5 @@
 mariadb
+matplotlib
 mysql
 mysql-connector
 mysqlclient
@@ -7,6 +8,7 @@ pandas
 plotly
 pyspark
 pyspark-stubs
+seaborn
 sklearn
 sqlalchemy
 statsmodels
