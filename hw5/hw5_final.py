@@ -12,8 +12,13 @@ from plotly import express as px
 from plotly.subplots import make_subplots
 from scipy import stats
 from scipy.stats import pearsonr
-from sklearn import datasets
-from sklearn.ensemble import RandomForestRegressor
+from sklearn import datasets, metrics, preprocessing
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
 from sqlalchemy import create_engine
 
 # --------------------------------------  DATA LOADING  ---------------------------------------------------------------
@@ -356,13 +361,33 @@ def MeanOfResponse(X, X2, y, col1, col2, target, restype="Continuous"):
 
     means_new.columns = [col[1].left for col in means_new.columns.values]
 
-    """plt.clf()
-    sns.heatmap(means[target])
-    plt.title('Means of target vs Features 0 and 1')
-    plt.tight_layout()
-    plt.show()"""
+    url = MeanOfResponseCorr(means_new, col1, col2)
 
-    return MeanOfResponseCorr(means_new, col1, col2)
+    temp_df1 = pd.concat([X, X2, y], axis=1)
+    temp_df1.columns = [col1, col2, target]
+    temp_df1["bin_col1"] = pd.cut(temp_df1[col1], bins=ncut, labels=False)
+
+    temp_df1["bin_col2"] = pd.cut(temp_df1[col2], bins=ncut, labels=False)
+    bin_means = temp_df1.groupby(["bin_col1", "bin_col2"], as_index=False).agg(
+        {target: ["mean", "count"]}
+    )
+
+    bin_means["msd"] = (
+        bin_means.iloc[:, bin_means.columns.get_level_values(1) == "mean"].sub(
+            y_avg, level=0
+        )
+        ** 2
+    )
+
+    counts_bin = bin_means.unstack(level=1)[target]["count"]
+    counts_bin_total = bin_means.unstack(level=1)[target]["count"].sum()
+    counts_bin_avg = counts_bin / counts_bin_total
+    bin_means["weighted_msd"] = bin_means["msd"] * counts_bin_avg
+
+    uw_score = bin_means["msd"].sum() / (ncut * ncut)
+    w_score = bin_means["weighted_msd"].sum()
+
+    return url, w_score, uw_score
 
 
 # continuous-categorical predictor
@@ -401,7 +426,33 @@ def ContMeanOfResponse(
 
     means_new.columns = [col[1].left for col in means_new.columns.values]
 
-    return MeanOfResponseCorr(means_new, col1, col2)
+    url = MeanOfResponseCorr(means_new, col1, col2)
+
+    temp_df1 = pd.concat([X, X2, y], axis=1)
+    temp_df1.columns = [col1, col2, target]
+    temp_df1["bin_col1"] = pd.cut(temp_df1[col1], bins=ncut1, labels=False)
+
+    temp_df1["bin_col2"] = pd.cut(temp_df1[col2], bins=ncut2, labels=False)
+    bin_means = temp_df1.groupby(["bin_col1", "bin_col2"], as_index=False).agg(
+        {target: ["mean", "count"]}
+    )
+
+    bin_means["msd"] = (
+        bin_means.iloc[:, bin_means.columns.get_level_values(1) == "mean"].sub(
+            y_avg, level=0
+        )
+        ** 2
+    )
+
+    counts_bin = bin_means.unstack(level=1)[target]["count"]
+    counts_bin_total = bin_means.unstack(level=1)[target]["count"].sum()
+    counts_bin_avg = counts_bin / counts_bin_total
+    bin_means["weighted_msd"] = bin_means["msd"] * counts_bin_avg
+
+    uw_score = bin_means["msd"].sum() / (ncut1 * ncut2)
+    w_score = bin_means["weighted_msd"].sum()
+
+    return url, w_score, uw_score
 
 
 # categorical-categorical predictor
@@ -444,7 +495,33 @@ def CatMeanOfResponse(
 
     means_new = means[target] - y_avg
 
-    return MeanOfResponseCorr(means_new, col1, col2)
+    url = MeanOfResponseCorr(means_new, col1, col2)
+
+    temp_df1 = pd.concat([X, X2, y], axis=1)
+    temp_df1.columns = [col1, col2, target]
+    temp_df1["bin_col1"] = pd.cut(temp_df1[col1], bins=ncut1, labels=False)
+
+    temp_df1["bin_col2"] = pd.cut(temp_df1[col2], bins=ncut2, labels=False)
+    bin_means = temp_df1.groupby(["bin_col1", "bin_col2"], as_index=False).agg(
+        {target: ["mean", "count"]}
+    )
+
+    bin_means["msd"] = (
+        bin_means.iloc[:, bin_means.columns.get_level_values(1) == "mean"].sub(
+            y_avg, level=0
+        )
+        ** 2
+    )
+
+    counts_bin = bin_means.unstack(level=1)[target]["count"]
+    counts_bin_total = bin_means.unstack(level=1)[target]["count"].sum()
+    counts_bin_avg = counts_bin / counts_bin_total
+    bin_means["weighted_msd"] = bin_means["msd"] * counts_bin_avg
+
+    uw_score = bin_means["msd"].sum() / (ncut1 * ncut2)
+    w_score = bin_means["weighted_msd"].sum()
+
+    return url, w_score, uw_score
 
 
 # --------------------- DIFFERENT RANKING ALGOS BETWEEN PREDICTORS AND RESPONSE  -------------------------------------
@@ -937,15 +1014,11 @@ def pred_pred(df, predictors, target):
     for i in cont_features:
         for j in cont_features:
             if i != j and (i, j) not in cont_list and (j, i) not in cont_list:
-                uw_score1, w_score1, _ = MeanOfResponseCont(
-                    X[i], y, i, target, target_type
+                url, w_score, uw_score = MeanOfResponse(
+                    X[i], X[j], y, i, j, target, target_type
                 )
-                uw_score2, w_score2, _ = MeanOfResponseCont(
-                    X[j], y, j, target, target_type
-                )
-                url = MeanOfResponse(X[i], X[j], y, i, j, target, target_type)
                 cont_list.append((i, j))
-                lst = [i, j, (uw_score1 - uw_score2), (w_score1 - w_score2), url]
+                lst = [i, j, uw_score, w_score, url]
                 df1 = pd.concat(
                     [
                         df1,
@@ -966,16 +1039,11 @@ def pred_pred(df, predictors, target):
     for i in cont_features:
         for j in cat_features:
             if i != j:
-                uw_score1, w_score1, _ = MeanOfResponseCont(
-                    X[i], y, i, target, target_type
-                )
-                uw_score2, w_score2, _ = MeanOfResponseCat(
-                    X[j], y, j, target, target_type
-                )
-                url = ContMeanOfResponse(
+                url, w_score, uw_score = ContMeanOfResponse(
                     X[i], X[j], y, i, j, target, target_type, ncut2=len(X[j].unique())
                 )
-                lst = [i, j, (uw_score1 - uw_score2), (w_score1 - w_score2), url]
+
+                lst = [i, j, uw_score, w_score, url]
                 df2 = pd.concat(
                     [
                         df2,
@@ -997,13 +1065,7 @@ def pred_pred(df, predictors, target):
     for i in cat_features:
         for j in cat_features:
             if i != j and (i, j) not in cat_list and (j, i) not in cat_list:
-                uw_score1, w_score1, _ = MeanOfResponseCat(
-                    X[i], y, i, target, target_type
-                )
-                uw_score2, w_score2, _ = MeanOfResponseCat(
-                    X[j], y, j, target, target_type
-                )
-                url = CatMeanOfResponse(
+                url, w_score, uw_score = CatMeanOfResponse(
                     X[i],
                     X[j],
                     y,
@@ -1016,7 +1078,7 @@ def pred_pred(df, predictors, target):
                 )
                 cat_list.append((i, j))
 
-                lst = [i, j, (uw_score1 - uw_score2), (w_score1 - w_score2), url]
+                lst = [i, j, uw_score, w_score, url]
                 df3 = pd.concat(
                     [
                         df3,
@@ -1051,12 +1113,89 @@ def pred_pred(df, predictors, target):
     return df_cont_cont, df_cont_cat, df_cat_cat, df1, df2, df3, link1, link2, link3
 
 
+# ------------------------------------ Machine Learning Model  -------------------------------------------------------
+
+
+def ml_model(df, predictors, target):
+    df.dropna(inplace=True)
+    X, y, target_type, cat_features, cont_features = DataProcessing(
+        df, predictors, target
+    )
+
+    if target_type == "Categorical":
+        le = preprocessing.LabelEncoder()
+        y = le.fit_transform(y)
+
+    le = preprocessing.LabelEncoder()
+    for i in cat_features:
+        X[i] = le.fit_transform(X[i])
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=0
+    )
+    sc = StandardScaler()
+    X_train = sc.fit_transform(X_train)
+    X_test = sc.transform(X_test)
+
+    # Random Forest model
+
+    clf = make_pipeline(StandardScaler(), RandomForestClassifier())
+    clf.fit(X_train, y_train)
+    y_pred = clf.predict(X_test)
+
+    print("Random Forest Model")
+    print("Mean Absolute Error:", metrics.mean_absolute_error(y_test, y_pred))
+    print("Mean Squared Error:", metrics.mean_squared_error(y_test, y_pred))
+    print(
+        "Root Mean Squared Error:", np.sqrt(metrics.mean_squared_error(y_test, y_pred))
+    )
+    print("Accuracy: ", metrics.accuracy_score(y_test, y_pred))
+
+    cnf_matrix = metrics.confusion_matrix(y_test, y_pred)
+    print(cnf_matrix)
+
+    # Logistic regression model
+
+    clf = make_pipeline(StandardScaler(), LogisticRegression())
+    clf.fit(X_train, y_train)
+    y_pred = clf.predict(X_test)
+
+    print(y_pred)
+
+    print("Logistic Regression Model")
+    print("Mean Absolute Error:", metrics.mean_absolute_error(y_test, y_pred))
+    print("Mean Squared Error:", metrics.mean_squared_error(y_test, y_pred))
+    print(
+        "Root Mean Squared Error:", np.sqrt(metrics.mean_squared_error(y_test, y_pred))
+    )
+    print("Accuracy: ", metrics.accuracy_score(y_test, y_pred))
+
+    cnf_matrix = metrics.confusion_matrix(y_test, y_pred)
+    print(cnf_matrix)
+
+    # Support vector machine
+    clf = make_pipeline(StandardScaler(), SVC(gamma="auto"))
+    clf.fit(X_train, y_train)
+    y_pred = clf.predict(X_test)
+
+    print("Support Vector Model")
+    print("Mean Absolute Error:", metrics.mean_absolute_error(y_test, y_pred))
+    print("Mean Squared Error:", metrics.mean_squared_error(y_test, y_pred))
+    print(
+        "Root Mean Squared Error:", np.sqrt(metrics.mean_squared_error(y_test, y_pred))
+    )
+    print("Accuracy: ", metrics.accuracy_score(y_test, y_pred))
+
+    cnf_matrix = metrics.confusion_matrix(y_test, y_pred)
+    print(cnf_matrix)
+
+
 # -----------------------------------------------------------------------------------------------------------------
 
 
 def main():
     # Loading a dataframe
-    # df, predictors, target = SeabornDataframe('mpg')
+    # df, predictors, target = SeabornDataframe('titanic')
     # df, predictors, target = SklearnDataframe()
     df, predictors, target = Baseball()
 
@@ -1069,6 +1208,12 @@ def main():
     )
 
     html(df0, df1, df2, df3, df4, df5, df6, link1, link2, link3)
+
+    ml_model(df, predictors, target)
+
+    # I have used 3 machine learning models - Random forest classifier, Logistic regression and Support vector machine.
+    # Dataset is split into 80-20 train-test ratio and Support vector machine is
+    # giving the best results with 59.1% accuracy.
 
 
 # -----------------------------------------------------------------------------------------------------------------
