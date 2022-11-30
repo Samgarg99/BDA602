@@ -6,6 +6,7 @@ mysqlclient
 numpy
 pandas
 plotly
+pymysql
 pyspark
 pyspark-stubs
 seaborn
