@@ -1,4 +1,4 @@
-mariadb
+mariadb==1.0.11
 matplotlib
 mysql
 mysql-connector
@@ -10,7 +10,7 @@ pymysql
 pyspark
 pyspark-stubs
 seaborn
-sklearn
+scikit-learn
 sqlalchemy
 statsmodels
 requests
