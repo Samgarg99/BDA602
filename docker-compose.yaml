@@ -1,17 +1,15 @@
 version: "3.3"
 services:
-  mariadb:
+  mariadb1:
     image: lscr.io/linuxserver/mariadb:latest
-    container_name: mariadb
+    container_name: mariadb1
     environment:
       - PUID=501
       - PGID=20
-      - MYSQL_ROOT_PASSWORD=
+      - MYSQL_ROOT_PASSWORD=password123
       - TZ=America/Los_Angeles
     volumes:
       - ./.db:/config
-    ports:
-      - 3307:3307
     restart: unless-stopped
 
   baseball:
@@ -19,6 +17,5 @@ services:
       context: .
       dockerfile: Dockerfile
     image: baseball
-    restart: unless-stopped
     volumes:
       - "./stuff:/app/stuff"
