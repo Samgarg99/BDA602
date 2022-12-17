@@ -18,9 +18,11 @@ greenlet==2.0.1
     # via sqlalchemy
 idna==3.4
     # via requests
+joblib==1.2.0
+    # via scikit-learn
 kiwisolver==1.4.4
     # via matplotlib
-mariadb==1.1.5.post2
+mariadb==1.0.11
     # via -r requirements.in
 matplotlib==3.6.2
     # via
@@ -34,22 +36,22 @@ mysqlclient==2.1.1
     # via
     #   -r requirements.in
     #   mysql
-numpy==1.23.4
+numpy==1.23.5
     # via
     #   -r requirements.in
     #   contourpy
     #   matplotlib
     #   pandas
     #   patsy
+    #   scikit-learn
     #   scipy
     #   seaborn
     #   statsmodels
 packaging==21.3
     # via
-    #   mariadb
     #   matplotlib
     #   statsmodels
-pandas==1.5.1
+pandas==1.5.2
     # via
     #   -r requirements.in
     #   seaborn
@@ -82,21 +84,25 @@ pytz==2022.6
     # via pandas
 requests==2.28.1
     # via -r requirements.in
+scikit-learn==1.1.3
+    # via -r requirements.in
 scipy==1.9.3
-    # via statsmodels
+    # via
+    #   scikit-learn
+    #   statsmodels
 seaborn==0.12.1
     # via -r requirements.in
 six==1.16.0
     # via
     #   patsy
     #   python-dateutil
-sklearn==0.0.post1
-    # via -r requirements.in
 sqlalchemy==1.4.44
     # via -r requirements.in
 statsmodels==0.13.5
     # via -r requirements.in
 tenacity==8.1.0
     # via plotly
-urllib3==1.26.12
+threadpoolctl==3.1.0
+    # via scikit-learn
+urllib3==1.26.13
     # via requests
