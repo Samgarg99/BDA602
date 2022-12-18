@@ -21,9 +21,12 @@ COPY requirements.txt .
 RUN pip3 install --compile --no-cache-dir -r requirements.txt
 
 # Copy over code
-COPY baseball_code.sql .
+#COPY baseball_code.sql .
+COPY code_baseball.sql .
 COPY my_awesome_bash_script.sh .
 COPY baseball.sql .
+COPY final.py .
+COPY testing.py .
 
 # Run app
 RUN chmod +x my_awesome_bash_script.sh

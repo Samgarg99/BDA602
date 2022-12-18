@@ -1,11 +1,9 @@
 #!/bin/bash
-sleep 10
+sleep 60
 
 database_to_copy_into="baseball"
 database_file="baseball.sql"
 
-
-# mariadb -u root -ppassword123 -hmariadb1 -e "show databases;"
 
 if mariadb -u root -ppassword123 -hmariadb1 ${database_to_copy_into}
 then
@@ -17,11 +15,25 @@ fi
 
 mariadb -u root -ppassword123 -hmariadb1 -e "show databases;"
 
-mariadb -u root -ppassword123 -hmariadb1 ${database_to_copy_into} < baseball_code.sql
+mariadb -u root -ppassword123 -hmariadb1 ${database_to_copy_into} < code_baseball.sql
 
-mariadb -u root -ppassword123 -hmariadb1 ${database_to_copy_into} -e 'select * from batter3 where game_id = 12560;'
+mariadb -u root -ppassword123 -hmariadb1 ${database_to_copy_into} -e 'select * from combined5_1;' > ./stuff/combined5_1.csv
 
-mariadb -u root -ppassword123 -hmariadb1 ${database_to_copy_into} -e 'select * from batter3;' > ./stuff/bat_avg.sql
+python3 final.py
+
+#python3 testing.py
+
+#mariadb -u root -ppassword123 -hmariadb1 ${database_to_copy_into} -e 'select * from combined5_1;'
+
+# mariadb -u root -ppassword123 -hmariadb1 -e "DROP DATABASE IF EXISTS ${database_to_copy_into};"
+
+# mariadb -u root -ppassword123 -hmariadb1 -e "show databases;"
+
+#mariadb -u root -ppassword123 -hmariadb1 ${database_to_copy_into} -e 'select * from batter3 where game_id = 12560;'
+
+# mariadb -u root -ppassword123 -hmariadb1 -e "DROP DATABASE ${database_to_copy_into};"
+
+#mariadb -u root -ppassword123 -hmariadb1 ${database_to_copy_into} -e 'select * from batter3;' > ./stuff/bat_avg.sql
 
 # mariadb -u root -ppassword123 -hmariadb1 -e " select * from ${database_to_copy_into}.game where game_id = 12560;" ${database_to_copy_into}
 
